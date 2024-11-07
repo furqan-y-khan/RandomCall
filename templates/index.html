@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cross-Gender Random Calling</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+</head>
+<body>
+    <h2>Cross-Gender Random Calling App</h2>
+    <div id="login">
+        <input type="text" id="username" placeholder="Enter your username">
+        <select id="gender">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+        </select>
+        <button onclick="joinCall()">Join Call</button>
+    </div>
+    <div id="call-area" style="display: none;">
+        <p>Connected with <span id="partner-name"></span></p>
+        <button onclick="leaveCall()">Leave Call</button>
+    </div>
+
+    <script>
+        var socket = io();
+
+        function joinCall() {
+            const username = document.getElementById("username").value;
+            const gender = document.getElementById("gender").value;
+
+            socket.emit("join", { username, gender });
+            document.getElementById("login").style.display = "none";
+            document.getElementById("call-area").style.display = "block";
+        }
+
+        function leaveCall() {
+            const username = document.getElementById("username").value;
+            const gender = document.getElementById("gender").value;
+
+            socket.emit("leave", { username, gender });
+            document.getElementById("call-area").style.display = "none";
+            document.getElementById("login").style.display = "block";
+        }
+
+        socket.on("call_matched", function(data) {
+            document.getElementById("partner-name").textContent = data.partner;
+            console.log("Joined room:", data.room);
+        });
+
+        socket.on("partner_left", function() {
+            alert("Your partner has left the call.");
+            leaveCall();
+        });
+    </script>
+</body>
+</html>

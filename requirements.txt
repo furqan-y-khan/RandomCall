@@ -1,0 +1,5 @@
+Flask
+Flask-SocketIO
+python-socketio
+eventlet # Required for running with Flask-SocketIO in production
+gunicorn
