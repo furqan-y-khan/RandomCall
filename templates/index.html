@@ -15,6 +15,7 @@
         </select>
         <button onclick="joinCall()">Join Call</button>
     </div>
+    <p id="status-message" style="display: none;"></p>
     <div id="call-area" style="display: none;">
         <p>Connected with <span id="partner-name"></span></p>
         <button onclick="leaveCall()">Leave Call</button>
@@ -27,28 +28,38 @@
             const username = document.getElementById("username").value;
             const gender = document.getElementById("gender").value;
 
+            if (!username) {
+                alert("Please enter a username.");
+                return;
+            }
+
             socket.emit("join", { username, gender });
             document.getElementById("login").style.display = "none";
-            document.getElementById("call-area").style.display = "block";
+            document.getElementById("status-message").textContent = "Waiting for a partner...";
+            document.getElementById("status-message").style.display = "block";
+            document.getElementById("call-area").style.display = "none"; // Ensure call-area is hidden
         }
 
         function leaveCall() {
-            const username = document.getElementById("username").value;
-            const gender = document.getElementById("gender").value;
-
-            socket.emit("leave", { username, gender });
+            socket.emit("leave"); // No data payload
             document.getElementById("call-area").style.display = "none";
+            document.getElementById("status-message").style.display = "none";
             document.getElementById("login").style.display = "block";
+            // Optionally clear fields
+            document.getElementById("partner-name").textContent = "";
+            // document.getElementById("username").value = ""; // Uncomment to clear username
         }
 
         socket.on("call_matched", function(data) {
+            document.getElementById("status-message").style.display = "none";
+            document.getElementById("call-area").style.display = "block";
             document.getElementById("partner-name").textContent = data.partner;
             console.log("Joined room:", data.room);
         });
 
         socket.on("partner_left", function() {
             alert("Your partner has left the call.");
-            leaveCall();
+            leaveCall(); // This will now reset UI to login state
         });
     </script>
 </body>
